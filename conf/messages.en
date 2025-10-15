@@ -493,3 +493,6 @@ cancelPaymentPlan.h2 = Are you sure you want to cancel this payment plan?
 cancelPaymentPlan.checkYourAnswersLabel = cancelPaymentPlan
 cancelPaymentPlan.error.required = Select one option.
 cancelPaymentPlan.change.hidden = CancelPaymentPlan
+
+paymentPlanCancelled.title = paymentPlanCancelled
+paymentPlanCancelled.heading = paymentPlanCancelled
