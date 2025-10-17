@@ -14,14 +14,54 @@
  * limitations under the License.
  *@
 
+@import views.html.components.*
+
 @this(
         layout: templates.Layout,
-        govukButton: GovukButton
+        govukButton: GovukButton,
+        confirmationPanel: ConfirmationPanel,
+        govukInsetText: GovukInsetText,
+        header2: Header2,
+        paragraph: Paragraph,
+        govukSummaryList: GovukSummaryList,
+        link: Link
 )
 
-@()(implicit request: Request[_], messages: Messages)
+@(paymentPlanReference: String, call: Call, rows:Seq[SummaryListRow])(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("paymentPlanCancelled.title"))) {
+@layout(pageTitle = titleNoForm(messages("paymentPlanCancelled.title")), showBackLink = false) {
 
-    <h1 class="govuk-heading-xl">@messages("paymentPlanCancelled.heading")</h1>
+    @confirmationPanel(
+        title = messages("paymentPlanCancelled.panel.title"),
+        body = Html(
+                    s"${messages("paymentPlanCancelled.panel.body1")}" +
+                    s"${messages("paymentPlanCancelled.panel.strong", paymentPlanReference)}" +
+                    s"${messages("paymentPlanCancelled.panel.body2")}"
+                    ),
+        classes = "govuk-!-margin-bottom-2"
+    )
+
+    @govukInsetText(
+        InsetText(
+            content = Text(messages("paymentPlanCancelled.pleaseNote"))
+        )
+    )
+
+    @header2("paymentPlanCancelled.h1")
+
+    @paragraph(messages("paymentPlanCancelled.p1"))
+
+    @header2("paymentPlanCancelled.h2")
+
+    @govukSummaryList(SummaryList(
+        card = Some(Card(
+            title = Some(CardTitle(
+                content = messages("paymentPlanCancelled.paymentReference", paymentPlanReference)
+            ))
+        )),
+        rows = rows
+    ))
+
+    @link("paymentPlanCancelled.link", call.url)
+
 }

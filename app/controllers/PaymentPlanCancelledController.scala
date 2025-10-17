@@ -16,24 +16,65 @@
 
 package controllers
 
-import controllers.actions._
+import controllers.actions.*
+import models.{PaymentPlanType, UserAnswers}
+
 import javax.inject.Inject
-import play.api.i18n.{I18nSupport, MessagesApi}
+import models.responses.PaymentPlanDetails
+import pages.AmendPlanStartDatePage
+import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import queries.{PaymentPlanDetailsQuery, PaymentPlanReferenceQuery}
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import utils.Constants
+import viewmodels.checkAnswers.*
 import views.html.PaymentPlanCancelledView
 
-class PaymentPlanCancelledController @Inject()(
-                                       override val messagesApi: MessagesApi,
-                                       identify: IdentifierAction,
-                                       getData: DataRetrievalAction,
-                                       requireData: DataRequiredAction,
-                                       val controllerComponents: MessagesControllerComponents,
-                                       view: PaymentPlanCancelledView
-                                     ) extends FrontendBaseController with I18nSupport {
+class PaymentPlanCancelledController @Inject() (
+  override val messagesApi: MessagesApi,
+  identify: IdentifierAction,
+  getData: DataRetrievalAction,
+  requireData: DataRequiredAction,
+  val controllerComponents: MessagesControllerComponents,
+  view: PaymentPlanCancelledView
+) extends FrontendBaseController
+    with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData) {
-    implicit request =>
-      Ok(view())
+  def onPageLoad(): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+    val userAnswers = request.userAnswers
+
+    (userAnswers.get(PaymentPlanDetailsQuery), userAnswers.get(PaymentPlanReferenceQuery)) match {
+      case (Some(planDetails), Some(paymentPlanReference)) =>
+        val paymentPlanDetails = planDetails.paymentPlanDetails
+        val rows = buildRows(userAnswers, paymentPlanDetails)
+
+        Ok(view(paymentPlanReference, routes.DirectDebitSummaryController.onPageLoad(), rows))
+      case _ =>
+        Redirect(routes.JourneyRecoveryController.onPageLoad())
+
+    }
+
   }
+
+  private def buildRows(userAnswers: UserAnswers, paymentPlanDetails: PaymentPlanDetails)(implicit messages: Messages): Seq[SummaryListRow] = {
+    if (paymentPlanDetails.planType == PaymentPlanType.BudgetPaymentPlan.toString) {
+      Seq(
+        AmendPaymentPlanTypeSummary.row(paymentPlanDetails.planType),
+        AmendPaymentPlanSourceSummary.row(paymentPlanDetails.hodService),
+        DateSetupSummary.row(paymentPlanDetails.submissionDateTime),
+        PaymentsFrequencySummary.row(paymentPlanDetails.scheduledPaymentFrequency),
+        AmendPaymentAmountSummary.row(paymentPlanDetails.planType, paymentPlanDetails.scheduledPaymentAmount)
+      )
+    } else {
+      Seq(
+        AmendPaymentPlanTypeSummary.row(paymentPlanDetails.planType),
+        AmendPaymentPlanSourceSummary.row(paymentPlanDetails.hodService),
+        DateSetupSummary.row(paymentPlanDetails.submissionDateTime),
+        AmendPaymentAmountSummary.row(paymentPlanDetails.planType, paymentPlanDetails.scheduledPaymentAmount)
+      )
+    }
+
+  }
+
 }
