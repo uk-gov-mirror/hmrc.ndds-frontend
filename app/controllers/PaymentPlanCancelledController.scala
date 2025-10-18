@@ -17,17 +17,15 @@
 package controllers
 
 import controllers.actions.*
-import models.{PaymentPlanType, UserAnswers}
+import models.PaymentPlanType
 
 import javax.inject.Inject
 import models.responses.PaymentPlanDetails
-import pages.AmendPlanStartDatePage
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import queries.{PaymentPlanDetailsQuery, PaymentPlanReferenceQuery}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import utils.Constants
 import viewmodels.checkAnswers.*
 import views.html.PaymentPlanCancelledView
 
@@ -47,17 +45,15 @@ class PaymentPlanCancelledController @Inject() (
     (userAnswers.get(PaymentPlanDetailsQuery), userAnswers.get(PaymentPlanReferenceQuery)) match {
       case (Some(planDetails), Some(paymentPlanReference)) =>
         val paymentPlanDetails = planDetails.paymentPlanDetails
-        val rows = buildRows(userAnswers, paymentPlanDetails)
+        val rows = buildRows(paymentPlanDetails)
 
         Ok(view(paymentPlanReference, routes.DirectDebitSummaryController.onPageLoad(), rows))
       case _ =>
         Redirect(routes.JourneyRecoveryController.onPageLoad())
-
     }
-
   }
 
-  private def buildRows(userAnswers: UserAnswers, paymentPlanDetails: PaymentPlanDetails)(implicit messages: Messages): Seq[SummaryListRow] = {
+  private def buildRows(paymentPlanDetails: PaymentPlanDetails)(implicit messages: Messages): Seq[SummaryListRow] = {
     if (paymentPlanDetails.planType == PaymentPlanType.BudgetPaymentPlan.toString) {
       Seq(
         AmendPaymentPlanTypeSummary.row(paymentPlanDetails.planType),
@@ -74,7 +70,6 @@ class PaymentPlanCancelledController @Inject() (
         AmendPaymentAmountSummary.row(paymentPlanDetails.planType, paymentPlanDetails.scheduledPaymentAmount)
       )
     }
-
   }
 
 }
