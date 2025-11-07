@@ -23,7 +23,8 @@
     govukErrorSummary: GovukErrorSummary,
     govukDateInput: GovukDateInput,
     paragraph: Paragraph,
-    govukButton: GovukButton
+    govukButton: GovukButton,
+    govukInsetText: GovukInsetText
 )
 
 @(form: Form[_], mode: Mode, planReference: String, paymentAmount: String, suspensionStartDate: String, suspensionEndDate: String)(implicit request: Request[_], messages: Messages)
@@ -48,22 +49,20 @@
             @if(mode == NormalMode) {
                 @header1("suspensionPeriodRangeDate.heading.normal")
 
-                <p class="govuk-body">
-                    @Html(messages("suspensionPeriodRangeDate.p1.line1", planReference)) <br>
-                    @Html(messages("suspensionPeriodRangeDate.p1.line2", paymentAmount))
-                </p>
+                @paragraph((messages("suspensionPeriodRangeDate.p1.line1", planReference)), extraClasses = "govuk-!-margin-bottom-0")
+                @paragraph((messages("suspensionPeriodRangeDate.p1.line2", paymentAmount)))
 
             } else {
                 @header1("suspensionPeriodRangeDate.heading.change")
 
-                <p class="govuk-body">
-                    @Html(messages("suspensionPeriodRangeDate.p1.line1", planReference)) <br>
-                    @Html(messages("suspensionPeriodRangeDate.p1.line2", paymentAmount))
-                </p>
+                        @paragraph((messages("suspensionPeriodRangeDate.p1.line1", planReference)), extraClasses = "govuk-!-margin-bottom-0")
+                        @paragraph((messages("suspensionPeriodRangeDate.p1.line2", paymentAmount)))
 
-                <p class="govuk-inset-text">
-                    @messages("suspensionPeriodRangeDate.change.inset", suspensionStartDate, suspensionEndDate)
-                </p>
+                        @govukInsetText(
+                            InsetText(
+                                content = Text(messages("suspensionPeriodRangeDate.change.inset", suspensionStartDate, suspensionEndDate))
+                            )
+                        )
 
                 @paragraph("suspensionPeriodRangeDate.change.paragraph")
 
