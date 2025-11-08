@@ -32,9 +32,18 @@
     @formHelper(action = routes.SuspensionPeriodRangeDateController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
 
-        @if(form.errors.nonEmpty) {
-            @govukErrorSummary(ErrorSummaryViewModel(form, errorLinkOverrides = Map("value" -> "value.day")))
-        }
+    @if(form.errors.nonEmpty) {
+        @govukErrorSummary(
+                ErrorSummaryViewModel(
+                    form,
+                    errorLinkOverrides = Map(
+                        "suspensionPeriodRangeStartDate" -> "suspensionPeriodRangeStartDate.day",
+                        "suspensionPeriodRangeEndDate" -> "suspensionPeriodRangeEndDate.day"
+                    )
+            )
+        )
+    }
+
 
         @header1("suspensionPeriodRangeDate.heading")
 
