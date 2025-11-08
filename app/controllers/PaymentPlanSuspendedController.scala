@@ -17,7 +17,7 @@
 package controllers
 
 import controllers.actions.*
-import models.UserAnswers
+import models.{Mode, UserAnswers}
 import models.responses.PaymentPlanDetails
 import pages.{ManagePaymentPlanTypePage, SuspensionPeriodRangeDatePage}
 
@@ -46,7 +46,7 @@ class PaymentPlanSuspendedController @Inject() (
 ) extends FrontendBaseController
     with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
     val userAnswers = request.userAnswers
 
     if (nddsService.suspendPaymentPlanGuard(userAnswers)) {
@@ -59,7 +59,17 @@ class PaymentPlanSuspendedController @Inject() (
         val formattedStartDate = suspensionPeriodRange.startDate.format(DateTimeFormatter.ofPattern(Constants.longDateTimeFormatPattern))
         val formattedEndDate = suspensionPeriodRange.endDate.format(DateTimeFormatter.ofPattern(Constants.longDateTimeFormatPattern))
         val rows = buildRows(paymentPlanReference, userAnswers, planDetails.paymentPlanDetails)
-        Ok(view(paymentPlanReference, formattedStartDate, formattedEndDate, routes.PaymentPlanDetailsController.onPageLoad(), rows))
+
+        Ok(
+          view(
+            mode,
+            paymentPlanReference,
+            formattedStartDate,
+            formattedEndDate,
+            routes.PaymentPlanDetailsController.onPageLoad(),
+            rows
+          )
+        )
       }
 
       maybeResult match {
@@ -73,7 +83,6 @@ class PaymentPlanSuspendedController @Inject() (
       )
       Redirect(routes.JourneyRecoveryController.onPageLoad())
     }
-
   }
 
   private def buildRows(paymentPlanReference: String, userAnswers: UserAnswers, paymentPlanDetails: PaymentPlanDetails)(implicit
@@ -84,5 +93,4 @@ class PaymentPlanSuspendedController @Inject() (
       Some(AmendPaymentAmountSummary.row(paymentPlanDetails.planType, paymentPlanDetails.scheduledPaymentAmount)),
       SuspensionPeriodRangeDateSummary.row(userAnswers)
     ).flatten
-
 }
