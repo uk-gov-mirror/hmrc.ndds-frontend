@@ -162,3 +162,7 @@ POST       /change-check-suspension-details                 controllers.CheckYou
 GET        /payment-plan-suspension-removed             controllers.RemoveSuspensionConfirmationController.onPageLoad()
 
 GET        /payment-plan-suspended                        controllers.PaymentPlanSuspendedController.onPageLoad()
+
+GET        /page-not-found                                    controllers.PageNotFoundController.onPageLoad()
+GET        /access-denied                                     controllers.AccessDeniedController.onPageLoad()
+GET        /system-error/there-is-a-problem                   controllers.SystemErrorController.onPageLoad()
